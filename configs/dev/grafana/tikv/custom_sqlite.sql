@@ -39,6 +39,7 @@ set
   )
 where
   slug in (
+    'weekly',
     'activity-repository-groups',
     'countries-statistics-in-repository-groups',
     'github-events',
