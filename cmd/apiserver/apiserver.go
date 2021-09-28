@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"github.com/ti-community-infra/devstats/internal/pkg/api"
 	"github.com/ti-community-infra/devstats/internal/pkg/identifier"
 	"github.com/ti-community-infra/devstats/internal/pkg/lib"
@@ -18,6 +19,9 @@ func main() {
 	var ctx identifier.Ctx
 	err := ctx.Init()
 	lib.FatalOnError(err)
+
+	// Init logger.
+	log := logrus.WithField("program", "apiserver")
 
 	// Init database clients based on the project config.
 	projectDBs := make(map[string]*gorm.DB)
@@ -33,6 +37,9 @@ func main() {
 	// Init database client connected to the identifier database.
 	identifierDB, err := lib.NewConn(ctx.IDDbDialect, ctx.IDDbHost, ctx.IDDbPort, ctx.IDDbUser, ctx.IDDbPass, ctx.IDDbName)
 	lib.FatalOnError(err)
+
+	// Make sure the table structure is existed.
+	identifier.EnsureStructure(log, identifierDB)
 
 	// Make sure the project info in the database.
 	for _, config := range projectConfigs {
